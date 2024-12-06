@@ -1,0 +1,230 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+<link rel="stylesheet" href="{% static '/library/css/history.css' %}?{{ timestamp }}">
+<!-- History mangement -->
+<div class="container">
+    <h2>Library Management</h2>
+    
+    <!-- Book Borrow Section -->
+    <section id="borrow-section">
+        <h3>Looking for a book? Check and Borrow!</h3>
+        <form id="borrow-form" >
+            {% csrf_token %}
+            <input type="text" id="book-name" name="book_name" placeholder="Enter book name" required>
+            <div id="suggestions" class="suggestions"></div>
+            <button type="submit" id="check-status-button">Check Status</button>
+        </form>      
+        <div id="borrow-info" style="margin-top: 10px; display: none;"></div>
+    </section> 
+    <script>
+        var csrftoken = document.querySelector('[name="csrf-token"]').content;
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("book-name");
+            const suggestions = document.getElementById("suggestions");
+    
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.trim();
+                if (query.length > 0) {
+                    fetch(`/search-books/?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            suggestions.innerHTML = ""; 
+                            suggestions.style.display = "block";
+                            data.forEach(book => {
+                                const suggestion = document.createElement("div");
+                                suggestion.textContent = `${book.name}`;
+                                suggestion.dataset.bookId = book.id;
+    
+                                suggestion.addEventListener("click", function () {
+                                    searchInput.value = book.name;
+                                    suggestions.style.display = "none";
+                                });
+    
+                                suggestions.appendChild(suggestion);
+                            });
+                        })
+                        .catch(error => console.error("Error fetching data:", error)); 
+                } else {
+                    suggestions.style.display = "none";
+                }
+            });
+    
+            document.addEventListener("click", function (e) {
+                if (!suggestions.contains(e.target) && e.target !== searchInput) {
+                    suggestions.style.display = "none";
+                }
+            });
+    
+            document.getElementById("borrow-form").addEventListener("submit", function(event) {
+                event.preventDefault();
+                var bookName = searchInput.value.trim();
+    
+                fetch("{% url 'check_book_status' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({'book_name': bookName })
+                })
+                .then((response) => response.json())
+                .then(data => {
+                    var borrowInfo = document.getElementById("borrow-info");
+                    borrowInfo.style.display = 'block';
+                    borrowInfo.innerHTML = `<p><strong>${data.book_name}</strong>: &nbsp; : &nbsp; ${data.book_status}</p>`;
+    
+                    if (data.book_status === "Available") {
+                        borrowInfo.innerHTML += `<button id="borrow-button">Borrow</button>`;
+    
+                        document.getElementById("borrow-button").style.cssText = `
+                            display: block;
+                            margin: 20px auto;
+                            text-align: center;
+                        `;
+    
+                        document.getElementById("borrow-button").addEventListener("click", function() {
+                            fetch("{% url 'borrow_book' %}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRFToken": csrftoken
+                                },
+                                body: JSON.stringify({'book_name': data.book_name })
+                            })
+                            .then((response) => response.json())
+                            .then(data => {
+                                alert(data.message);
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    </script>    
+
+    <!-- Book Return Section -->
+    <section id="return-section">
+        <h3>Time to return your adventure? Return now!</h3>
+        <form id="return-form">
+            {% csrf_token %}
+            {% if request.session.customer_id %}
+                {% if borrowed_books %}
+                    <select id="return-select" name ="book_id" required>
+                        <option value="" disabled selected>-- Choose a book to return --</option>
+                        {% for record in borrowed_books %}
+                            <option value="{{ record.book.id }}">{{ record.book.name }} </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" id="return-button">Return</button>
+                {% else %}
+                    <select id="return-select" aria-label="No books to return">
+                        <option value="" disabled selected>-- You have no books to return. --</option>
+                    </select>
+                {% endif %}
+            {% else %}
+                <select id="return-select" aria-label="Log in to see your books">
+                    <option value="" disabled selected>-- Please log in to see your books --</option>
+                </select>
+            {% endif %}
+        </form>
+    </section>     
+    <script>
+        var csrftoken = document.querySelector('[name="csrf-token"]').content;
+        document.getElementById("return-form").addEventListener("submit", function(event) {
+            event.preventDefault();  
+            var bookId = document.getElementById("return-select").value;
+            console.log(bookId)
+
+            fetch("{% url 'return_book' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+                body: JSON.stringify({'book_id': bookId })
+            })
+            .then((response) => {return response.json()})
+            .then(data => {
+                alert(data.message);
+            });
+        });
+    </script>    
+
+    <!-- Donate Section -->
+    <section id="donate-section">
+        <h3>Share the gift of knowledge—donate a book today!</h3><button id="donate-btn">Donate</button></p>
+        <div id="donate-form" style="display:none;">
+            <form action="#" method="POST" enctype="multipart/form-data">
+                <input type="text" id="name" name="name" placeholder="What's your name?" required>
+                <input type="text" id="contact" name="contact" placeholder="Share your Facebook/ Zalo/ Telegram contact with us" required>
+                <input type="text" id="location" name="location" placeholder="Where can we pick up your books?" required>
+                <input type="text" id="book-name" name="book-name" placeholder="What is the name of the book?" required>        
+                <textarea id="message" name="message" placeholder="A heartfelt message for the recipients of your donation" rows="4" required></textarea>
+    
+                <button type="submit">Submit</button>
+            </form>
+        </div>                
+    </section>
+    {% if request.session.customer_id %}
+        <script>
+            document.getElementById("donate-btn").addEventListener("click", function() {
+                var form = document.getElementById("donate-form");
+                form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+            });
+
+            document.getElementById("donate-form").addEventListener("submit", function(event) {
+                event.preventDefault();  
+                var Name = document.getElementById("name").value;
+                var Contact = document.getElementById("contact").value;
+                var Location = document.getElementById("location").value;
+                var BookName = document.getElementById("book-name").value;
+                var Message = document.getElementById("message").value;
+
+                fetch("{% url 'donate_book' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({'donor_name': Name, 'contact': Contact, 'location': Location, 'book_name': BookName, 'message': message })
+                })
+                .then((response) => {return response.json()})
+                .then(data => {
+                    alert(data.message);
+                });
+            });
+        </script>
+    {% else %}
+        <script>
+            document.getElementById("donate-btn").addEventListener("click", function() {
+                alert("Please log in to donate.");
+            });
+        </script>
+    {% endif %}
+
+    <!-- History -->
+    <section id="history-section">
+        <h3>Relive the journey—check your borrowing history!</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Borrowed Date</th>
+                    <th>Return Date</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                {% for record in history %}
+                    <tr>
+                        <td>{{ record.book.name }}</td>
+                        <td>{{ record.registration_date|date:"Y-m-d" }}</td>
+                        <td>{{ record.return_date|date:"Y-m-d" }}</td>
+                    </tr>                           
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock body %}

@@ -1,0 +1,22 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/review.css' %}?{{ timestamp }}">
+
+<!-- Content review-->
+<div id="detail-review">
+    <h2>{{review.title}}</h2>
+    <p>by {{review.reviewer_name}}</p>
+
+    <div id="image-review">
+        <img src="{{review.image.url}}">      
+    </div>            
+
+    <div id="content-review">
+        <p>{{review.detailed_content}}</p>
+        <h3>Mời các bạn đón đọc</h3>
+    </div>
+</div>
+
+{% endblock body %}

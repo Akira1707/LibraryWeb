@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Trạm Đọc Xanh</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="icon" href="{% static 'library/images/icon.png' %}">
+
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="{% static 'library/css/login.css' %}">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+</head>
+
+<body>
+    <div class="container">
+        <!--Sign up form-->
+        <div class="form_container row" id="sign_up_form">
+            <form class="col s12" action="{% url 'register' %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input id="first_name" name="first_name" type="text" class="validate" required>
+                        <label for="first_name">First Name</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <input id="last_name" name="last_name" type="text" class="validate" required>
+                        <label for="last_name">Last Name</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="phone" name="phone" type="tel" class="phone" required>
+                        <label for="phone">Number telephone</label>
+                        <span class="helper-text" data-error="Please enter a valid phone number."></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="email" name="email" type="email" class="email validate" required>
+                        <label for="email">Email</label>
+                        <span class="helper-text" data-error="Please enter a valid email address."></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="password" name="password" type="password" class="password" required>
+                        <label for="password">Password</label>
+                        <span class="helper-text" data-error="Password must be at least 8 characters long, contain at least one uppercase letter and one number."></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="password-repeat" type="password" class="validation" required>
+                        <label for="password-repeat">Repeat password</label>
+                        <span class="helper-text" data-error="Passwords do not match."></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="sign_button btn waves-effect waves-light col s4 offset-s4" type="submit" id="sign_up_btn" disabled>
+                        Sign up
+                        <i class="material-icons right">send</i>
+                    </button>
+                </div>
+            </form>
+            <div class="row">
+                <p class="center">Already registered?    <a href= "{% url 'login' %}" id="sign_in_link">SIGN IN!</a></p>
+            </div>
+        </div>
+        {% if messages %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    {% for message in messages %}
+                    alert("{{ message|escapejs }}");
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}       
+        <script src="https://www.google-analytics.com/analytics.js" async></script>
+        <script type="module" src="{% static 'library/js/signup.js' %}"></script>
+    </div>
+</body>
+</html>

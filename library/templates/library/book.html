@@ -1,0 +1,33 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/book.css' %}?{{ timestamp }}">
+
+<!-- Content book-->
+<div id="detail-book">
+    <div id="row01">
+        <div id="image-book">
+            <img src="{{book.image.url}}">      
+        </div>
+        <div id="about-book">
+            <h2>{{book.name}}</h2>
+            <hr>
+            <p>Author: &nbsp;<label style="color:rgb(10, 158, 10) ;"> {{book.author}}</label> </p>
+            <p>Genres: &nbsp;<label style="color:rgb(10, 158, 10)  ;"> {{genres_list}}</label> </p>
+            <p>Themes: &nbsp;<label style="color:rgb(10, 158, 10)  ;"> {{themes_list}}</label> </p>
+            <p>Status: &nbsp; {{book.status}}</p>
+            <p>Rating: &nbsp; {{book.rating}}</p>
+            <hr>   
+        </div>
+    </div>
+
+    <div id="content-detail-book">
+        <h3 style="text-align: center; color: #009150;">Giới Thiệu Sách</h3>
+        <h4>{{book.name}}</h4>
+        <p>{{book.detailed_content}}</p>
+        <h5>Mời các bạn đón đọc</h5>
+    </div>
+</div>
+
+{% endblock body %}

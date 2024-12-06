@@ -1,0 +1,118 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/news.css' %}?{{ timestamp }}">
+
+<!-- Hot News-->
+<div class = "content">
+    <h2>Hot News:</h2>
+</div>
+
+<div id="row-box-news">
+    <div id="box-news1">
+        <div id="img-news1">
+            <img src="{{main_news.image.url}}" alt="" style="width:190px;">
+        </div>
+        <div id="hot-news">
+            <div id="title-news1">
+                <b>{{main_news.title}}</b>
+            </div>
+            <span>______________</span>
+            <br>
+            <div id="content-news1">
+                {{main_news.basic_content}}
+            </div>
+            <div id="btn-read1">
+                <a href="{% url 'news_detail' main_news.pk %}">Read more</a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="row-news">
+        {% for new in news %}
+        <div id="row-news1">
+            <div id="news1">
+                <img src="{{new.image.url}}" alt="">
+            </div>
+            <div style="margin-top: 8px;"> 
+                <div class="title-news">
+                    <a href="{% url 'news_detail' new.pk %}">{{new.title}}</a>
+                </div>
+                <span> {{new.basic_content}}</span>
+            </div>
+        </div>
+        {% endfor %} 
+    </div>
+</div> 
+
+<!-- Review Book-->
+<div class = "content">
+    <h2>Review book:</h2>
+</div>
+
+<div id="reviews">
+    {% for review in reviews %}
+    <div class="box-review">
+        <div class="img-review">
+            <img src="{{review.image.url}}" alt="">
+        </div>
+        <div class="review">
+            <div class="title-review">
+                <a href="{% url 'review_detail' review.pk %}"><b> {{review.title}} </b> </a>
+            </div> 
+            <span>{{review.reviewer_name}}</span><br>
+            <span>______________</span>
+            <br>
+            <div class="content-book">{{review.basic_content}}</div>          
+        </div>
+    </div>
+    {% endfor %}             
+</div>
+
+<!-- Review form -->
+<div id="review-section">
+    <p> Share your thoughts on your favorite book! <button id="write-btn">Write</button></p>
+    
+    <div id="review-form" style="display:none;">
+        <h3>Write your review</h3>
+        <form action="{% url 'submit_review' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="text" id="book_name" name="book_name" placeholder="Enter the book name" required>
+            <input type="text" id="name" name="name" placeholder="What's your name?" required>
+            <input type="text" id="title" name="title" placeholder="Enter the review title" required>
+            <textarea id="basic_content" name="basic_content" placeholder="Write a short review..." required></textarea>
+            <textarea id="review" name="review" placeholder="Write your review here..." required></textarea>
+
+            <label for="image">Upload an image:</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+{% if request.session.customer_id %}
+    <script>
+        document.getElementById("write-btn").addEventListener("click", function() {
+            var form = document.getElementById("review-form");
+            form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+        });
+    </script>
+                
+{% else %}
+    <script>
+        document.getElementById("write-btn").addEventListener("click", function() {
+                alert("Please log in to write review.");
+    });
+    </script>
+{% endif %}
+
+
+{% endblock body %}
+book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True, related_name='reviews')
+    reviewer_name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+    image = models.ImageField(blank=True, null=True)
+    basic_content = models.TextField(blank = True, null=True) 
+    detailed_content = models.TextField(blank = True, null=True) 

@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width = device-width, initial-scale = 1.0" />
+
+        <meta property="og:title" content="">
+        <meta property="og:type" content="">
+        <meta property="og:url" content="">
+        <meta property="og:image" content="">
+        <meta name="csrf-token" content="{{ csrf_token }}">
+
+        <title>Trạm Đọc Xanh</title>
+        <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet"/>
+        
+        <link rel="stylesheet" href="{% static 'library/css/base.css' %}?{{ timestamp }}">
+        <link rel="icon" href="{% static 'library/images/icon.png' %}"/>
+
+    </head>
+    <body>
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <img src="{% static 'library/images/logo.jpg' %}" alt="Trạm Đọc Saint logo"/>
+                <h1>Trạm đọc Saint</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li class="lists"><a href="">Lists</a>
+                        <ul class="sub_menu">
+                            <li><a href="{% url 'lists_genre' %}">Genres</a>
+                                <ul class="sub_menu">
+                                    {% for genre in genres %}
+                                    <li><a href="{% url 'lists_genre' %}#{{genre.name}}">{{genre}}</a></li>
+                                    {% endfor %}  
+                                </ul>
+                            </li>
+                            <li><a href="{% url 'lists_theme' %}">Themes</a>
+                                <ul class="sub_menu">
+                                    {% for theme in themes %}
+                                    <li><a href="{% url 'lists_theme' %}#{{theme.name}}">{{theme.name}}</a></li>
+                                    {% endfor %} 
+                                </ul>                            
+                            </li>
+                            <li><a href="{% url 'lists_hot' %}">Hot</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'history' %}">History</a></li>
+                    <li><a href="{% url 'news' %}">News</a></li>
+                </ul>
+            </nav>
+            {% if request.session.customer_id %}
+                <a href="{% url 'logout' %}">
+                    <button class="login-button" id="loginButton">Log out</button>
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}">
+                    <button class="login-button" id="loginButton">Log in</button>
+                </a>
+            {% endif %}
+        </header>
+        
+        {% block body%}{% endblock body %}
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 Trạm Đọc Xanh. All rights reserved.</p>
+            <p>
+                Follow us on
+                <a
+                    href="https://www.facebook.com/Tramdocsaint?mibextid=ZbWKwL"
+                    target="_blank"
+                    >Facebook</a
+                >.
+            </p>
+        </footer>
+    </body>
+</html>

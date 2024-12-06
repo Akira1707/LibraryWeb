@@ -1,0 +1,126 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/home.css' %}?{{ timestamp }}">
+
+<!-- Search bar -->
+<div class="search">
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search for books..." required />    
+        <button type="submit" id="search-submit">&#128269;</button>
+    </div>
+    <div id="suggestions" class="suggestions"></div>
+</div>
+
+
+<script>    
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("search-input");
+        const suggestions = document.getElementById("suggestions");
+        const searchSubmit = document.getElementById("search-submit");
+    
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                fetch(`/search-books/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestions.innerHTML = ""; 
+                        suggestions.style.display = "block";
+                        data.forEach(book => {
+                            const suggestion = document.createElement("div");
+                            suggestion.textContent = `${book.name} - ${book.author}`;
+                            suggestion.dataset.bookId = book.id;
+    
+                            suggestions.appendChild(suggestion);
+                        });
+                    });
+            } else {
+                suggestions.style.display = "none";
+            }
+        });
+
+        suggestions.addEventListener("click", function (e) {
+            if (e.target && e.target.matches("div")) {
+                const selectedSuggestion = e.target;
+                searchInput.value = selectedSuggestion.textContent;
+                suggestions.style.display = "none";
+            }
+        });
+    
+        document.addEventListener("click", function (e) {
+            if (!suggestions.contains(e.target) && e.target !== searchInput) {
+                suggestions.style.display = "none";
+            }
+        });
+
+        searchSubmit.addEventListener("click", function () {
+            const query = searchInput.value.split('-')[0].trim();
+            if (query.length > 0) {
+                fetch(`/search-books/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const bookId = data[0].id;
+                            window.location.href = `/book/${bookId}/`; 
+                        } else {
+                            alert("No matching books found.");
+                        }
+                    });
+            }
+        });
+    });
+</script>
+<!-- Slides News -->
+<div class="news-slides">     
+    <div class="slides-content">
+        {% for new in news %}
+        <div class="slide-item">
+            <img src="{{new.image.url}}" alt=""/>
+            <a href="{% url 'news_detail' new.pk %}"><h2>{{new.title}}</h2></a>
+        </div>
+        {% endfor %}  
+    </div>
+
+    <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+    <button class="next" onclick="moveSlide(1)">&#10095;</button>
+</div>
+<script src="{% static 'library/js/home.js' %}"></script>
+
+<!-- Container: Book Lists + Trending -->
+<div class="container">
+    <!--Book Lists -->
+    <section class="book-lists">
+        <h3>BOOK LISTS</h3>
+        <div class="books">
+            {% for book in books %}
+            <div class="book-item">
+                <img src="{{book.image.url}}" alt="{{book.name}}"/>
+                <div class="more">
+                    <p class="name">{{book.name}}</p>
+                    <p class="author">Author:&nbsp;{{book.author}}</p>
+                    <p class="status">Status:&nbsp;{{ book.status }}</p>
+                    <p class="rating">Rating:&nbsp;{{book.rating}}</p>
+                    <a href="{% url 'book_detail' book.pk %}" class="press">Xem chi tiết</a>
+                </div>
+                <h4>{{book.name}}</h4>
+            </div>
+            {% endfor %}            
+        </div>
+    </section>
+
+    <!--Trending Section -->
+    <aside class="trending">
+        <h5>TRENDING</h5>
+        <ul>
+            {% for book in trending %}
+            <li>
+                <img src="{{book.image.url}}" alt="{{book.name}}"/>
+                <a href="{% url 'book_detail' book.pk %}">{{book.name}}</a>
+            </li>
+            {% endfor %}  
+        </ul>
+    </aside>
+</div>
+{% endblock body %}

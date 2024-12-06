@@ -1,0 +1,20 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/lists.css' %}?{{ timestamp }}">
+
+<div class="table-book">
+    <h2 class="title-kesach" id= "hot"> Trending </h2>
+    <div id="books">
+        {% for book in hot %}
+        <a href="{% url 'book_detail' book.pk %}" class="hoversach">
+            <img src="{{ book.image.url }}" alt="{{ book.name }}" />
+            <h4>{{ book.name }}</h4>
+            <p>{{ book.author }}</p>   
+            <p>Rating:&nbsp; {{ book.rating }}</p>                 
+        </a>
+        {% endfor %}
+    </div>    
+</div>
+{% endblock body %}

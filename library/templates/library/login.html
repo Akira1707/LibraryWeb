@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Trạm Đọc Xanh</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="icon" href="{% static 'library/images/icon.png' %}">
+
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet"/>
+
+  <link rel="stylesheet" href="{% static 'library/css/login.css' %}">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+</head>
+
+<body>
+    <div class="container">
+        <!--Sign in form--> 
+        <div class="form_container row" id="sign_in_form"> 
+            <form class="col s12" action="{% url 'submit_login' %}" method="POST"> 
+                {% csrf_token %} 
+                <div class="row"> 
+                    <div class="input-field col s12"> 
+                        <input id="email" name="email" type="email" class="email validate" required> 
+                        <label for="email">Email</label> 
+                        <span class="helper-text" data-error=""></span>
+                    </div> 
+                </div> 
+                <div class="row"> 
+                    <div class="input-field col s12"> 
+                        <input id="password" name="password" type="password" class="password" required> 
+                        <label for="password">Password</label> 
+                        <span class="helper-text" data-error=""></span>
+                    </div> 
+                </div> 
+                <div class="row"> 
+                    <button class="sign_button btn waves-effect waves-light col s4 offset-s4" type="submit" id="sign_in_btn" disabled> 
+                        Sign in 
+                        <i class="material-icons right">send</i> 
+                    </button> 
+                </div> 
+            </form> 
+            <div class="row"> 
+                <p class="center">Don't have an account? <a href= "{% url 'signup' %}" id="sign_up_link">SIGN UP!</a></p> 
+            </div> 
+        </div>   
+        {% if messages %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    {% for message in messages %}
+                    alert("{{ message|escapejs }}");
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}       
+        <script src="https://www.google-analytics.com/analytics.js" async></script>
+        <script type="module" src="{% static 'library/js/login.js' %}"></script> 
+    </div>
+</body>
+</html>

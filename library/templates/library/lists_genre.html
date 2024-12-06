@@ -1,0 +1,24 @@
+{% extends 'library/base.html' %}
+{% load static %}
+{% block body%}
+
+<link rel="stylesheet" href="{% static '/library/css/lists.css' %}?{{ timestamp }}">
+
+<div class="table-book">
+    {% for genre, books in books_by_genre.items %}
+    <h2 class="title-kesach" id="{{ genre.name }}">{{ genre.name }}</h2>
+    <div id="books">
+        {% for book in books %}
+        <div class="slide-item">
+            <a href="{% url 'book_detail' book.pk %}" class="hoversach">
+                <img src="{{ book.image.url }}" alt="{{ book.name }}" />
+                <h4>{{ book.name }}</h4>
+                <p>{{ book.author }}</p>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock body %}
